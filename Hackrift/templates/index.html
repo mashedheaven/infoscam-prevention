@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Misinformation Detector</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center;
+        }
+        input, button {
+            margin: 10px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Misinformation Detector</h1>
+    <input type="text" id="inputText" placeholder="Enter text to analyze">
+    <button id="analyzeBtn">Analyze</button>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('analyzeBtn').addEventListener('click', async () => {
+            const inputText = document.getElementById('inputText').value;
+            const resultDiv = document.getElementById('result');
+
+            if (!inputText.trim()) {
+                resultDiv.innerText = "Please enter some text.";
+                return;
+            }
+
+            try {
+                const response = await fetch('/analyze-text', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: inputText })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    resultDiv.innerText = `Error: ${error.error || 'An unknown error occurred.'}`;
+                    return;
+                }
+
+                const data = await response.json();
+                resultDiv.innerText = data.message;
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.innerText = "An error occurred. Please try again.";
+            }
+        });
+    </script>
+</body>
+</html>

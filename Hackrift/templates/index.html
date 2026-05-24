@@ -1,62 +1,100 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Misinformation Detector</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            text-align: center;
-        }
-        input, button {
-            margin: 10px;
-            padding: 10px;
-            font-size: 16px;
-        }
-        #result {
-            margin-top: 20px;
-            font-weight: bold;
-        }
-    </style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>InfoScam Prevention</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Misinformation Detector</h1>
-    <input type="text" id="inputText" placeholder="Enter text to analyze">
-    <button id="analyzeBtn">Analyze</button>
-    <div id="result"></div>
+    <main class="app-shell">
+        <section class="workspace" aria-labelledby="app-title">
+            <header class="topbar">
+                <div>
+                    <p class="eyebrow">InfoScam Prevention</p>
+                    <h1 id="app-title">Message Risk Check</h1>
+                </div>
+                <div class="status-pill" aria-label="Analyzer status">
+                    <span aria-hidden="true"></span>
+                    Local analyzer
+                </div>
+            </header>
 
-    <script>
-        document.getElementById('analyzeBtn').addEventListener('click', async () => {
-            const inputText = document.getElementById('inputText').value;
-            const resultDiv = document.getElementById('result');
+            <section class="analyzer-panel" aria-label="Message analyzer">
+                <form id="text-form" class="text-form">
+                    <label for="text-input">Message or claim</label>
+                    <textarea
+                        id="text-input"
+                        name="text"
+                        maxlength="5000"
+                        rows="9"
+                        placeholder="Paste a message, post, caption, or claim here."
+                        autocomplete="off"
+                    ></textarea>
 
-            if (!inputText.trim()) {
-                resultDiv.innerText = "Please enter some text.";
-                return;
-            }
+                    <div class="form-actions">
+                        <span id="char-count" class="char-count">0 / 5000</span>
+                        <button id="clear-btn" class="secondary-button" type="button">Clear</button>
+                        <button id="analyze-btn" class="primary-button" type="submit">
+                            <span aria-hidden="true">?</span>
+                            Analyze
+                        </button>
+                    </div>
+                </form>
+            </section>
 
-            try {
-                const response = await fetch('/analyze-text', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text: inputText })
-                });
+            <section id="result" class="result-panel hidden" aria-live="polite">
+                <div class="result-heading">
+                    <div>
+                        <p class="eyebrow">Assessment</p>
+                        <h2 id="risk-level">Needs review</h2>
+                    </div>
+                    <span id="verdict-badge" class="verdict-badge">Pending</span>
+                </div>
 
-                if (!response.ok) {
-                    const error = await response.json();
-                    resultDiv.innerText = `Error: ${error.error || 'An unknown error occurred.'}`;
-                    return;
-                }
+                <p id="message" class="result-message"></p>
 
-                const data = await response.json();
-                resultDiv.innerText = data.message;
-            } catch (error) {
-                console.error('Error:', error);
-                resultDiv.innerText = "An error occurred. Please try again.";
-            }
-        });
-    </script>
+                <div class="score-block">
+                    <div class="score-labels">
+                        <span>Risk score</span>
+                        <strong id="risk-score">0</strong>
+                    </div>
+                    <div class="score-track" aria-hidden="true">
+                        <span id="score-fill"></span>
+                    </div>
+                    <div class="score-meta">
+                        <span>Low</span>
+                        <span id="confidence">Confidence 0%</span>
+                        <span>High</span>
+                    </div>
+                </div>
+
+                <div class="details-grid">
+                    <section class="detail-section" aria-labelledby="signals-title">
+                        <h3 id="signals-title">Signals</h3>
+                        <ul id="signals-list" class="signals-list"></ul>
+                    </section>
+
+                    <section class="detail-section" aria-labelledby="next-steps-title">
+                        <h3 id="next-steps-title">Next Steps</h3>
+                        <ul id="recommendations-list" class="recommendations-list"></ul>
+                    </section>
+                </div>
+
+                <section id="feedback-section" class="feedback-section">
+                    <div>
+                        <h3>Feedback</h3>
+                        <p id="feedback-status">Mark the message based on what you know.</p>
+                    </div>
+                    <div class="feedback-actions">
+                        <button id="feedback-risky" class="secondary-button" type="button">Risky</button>
+                        <button id="feedback-safe" class="secondary-button" type="button">Safe</button>
+                    </div>
+                </section>
+            </section>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
